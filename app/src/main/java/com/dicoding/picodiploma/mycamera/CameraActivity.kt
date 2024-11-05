@@ -1,5 +1,7 @@
 package com.dicoding.picodiploma.mycamera
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +27,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var  barcodeScanner: BarcodeScanner
     private lateinit var binding: ActivityCameraBinding
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    private var firstCall = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,8 +69,6 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun showResult(result: MlKitAnalyzer.Result?) {
-        var firstCall = true
-
         if (firstCall) {
 
             val barcodeResults = result?.getValue(barcodeScanner)
@@ -76,6 +77,24 @@ class CameraActivity : AppCompatActivity() {
                 val barcode = barcodeResults[0]
                 val alertDialog = AlertDialog.Builder(this)
                     .setMessage(barcode.rawValue)
+                    .setPositiveButton("Buka") { _, _ ->
+                        firstCall = true
+                        when (barcode.valueType) {
+                            Barcode.TYPE_URL -> {
+                                val openBrowserIntent = Intent(Intent.ACTION_VIEW)
+                                openBrowserIntent.data = Uri.parse(barcode.url?.url)
+                                startActivity(openBrowserIntent)
+                            }
+                            else -> {
+                                Toast.makeText(this, "Unsupported data type", Toast.LENGTH_SHORT)
+                                    .show()
+                                startCamera()
+                            }
+                        }
+                    }
+                    .setNegativeButton("Scan Ulang") {_, _ ->
+                        firstCall = true
+                    }
                     .setCancelable(false)
                     .create()
 
