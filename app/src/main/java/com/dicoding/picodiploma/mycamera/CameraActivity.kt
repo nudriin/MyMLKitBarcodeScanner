@@ -66,15 +66,21 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun showResult(result: MlKitAnalyzer.Result?) {
-        val barcodeResults = result?.getValue(barcodeScanner)
-        if((barcodeResults != null) && (barcodeResults.size != 0) && (barcodeResults.first() != null)) {
-            val barcode = barcodeResults[0]
-            val alertDialog = AlertDialog.Builder(this)
-                .setMessage(barcode.rawValue)
-                .setCancelable(false)
-                .create()
+        var firstCall = true
 
-            alertDialog.show()
+        if (firstCall) {
+
+            val barcodeResults = result?.getValue(barcodeScanner)
+            if((barcodeResults != null) && (barcodeResults.size != 0) && (barcodeResults.first() != null)) {
+                firstCall = false
+                val barcode = barcodeResults[0]
+                val alertDialog = AlertDialog.Builder(this)
+                    .setMessage(barcode.rawValue)
+                    .setCancelable(false)
+                    .create()
+
+                alertDialog.show()
+            }
         }
     }
 
